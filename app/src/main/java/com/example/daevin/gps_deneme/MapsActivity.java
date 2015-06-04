@@ -48,7 +48,7 @@ public class MapsActivity extends FragmentActivity {
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -66,7 +66,11 @@ public class MapsActivity extends FragmentActivity {
         Intent i = getIntent();
         Location location = (Location) i.getParcelableExtra("location");
         LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
+        mMap.setMyLocationEnabled(true);
+
+
     }
 }
