@@ -1,8 +1,9 @@
 package com.example.daevin.gps_deneme;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.location.Address;
-import android.location.Location;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by Daevin on 4.6.2015.
@@ -11,7 +12,7 @@ public class Park {
     public int id;
     public double lat;
     public double lng;
-    public Address adress;
+    public String address;
     public Bitmap photo;
     public Bitmap thumbNail;
 
@@ -39,15 +40,19 @@ public class Park {
         this.lng = lng;
     }
 
-    public Address getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(Address adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public Bitmap getPhoto() {
+    public Bitmap getPhoto(Context context) {
+        if (photo == null) {
+            DBHelper dbHelper = new DBHelper(context);
+            photo = dbHelper.getPhotoOf(getId());
+        }
         return photo;
     }
 
@@ -62,4 +67,22 @@ public class Park {
     public void setThumbNail(Bitmap thumbNail) {
         this.thumbNail = thumbNail;
     }
+
+    public byte[] getPhotoAsByteArray () {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (photo == null) { return null;}
+        photo.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bArray = bos.toByteArray();
+        return bArray;
+    }
+
+    public byte[] getThumbNailAsByteArray () {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (getThumbNail() == null) { return null;}
+        getThumbNail().compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bArray = bos.toByteArray();
+        return bArray;
+    }
+
+
 }
