@@ -1,7 +1,6 @@
 package com.example.daevin.gps_deneme;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +20,6 @@ public class ParkAdapter extends ArrayAdapter<Park> {
     public ParkAdapter(Activity activity, int resource, List<Park> objects) {
         super(activity, R.layout.park_layout, objects);
         inflater = activity.getWindow().getLayoutInflater();
-
-
-
     }
 
     @Override
@@ -36,4 +32,5 @@ public class ParkAdapter extends ArrayAdapter<Park> {
         tv.setText(getItem(position).getAddress());
         return item;
     }
+
 }

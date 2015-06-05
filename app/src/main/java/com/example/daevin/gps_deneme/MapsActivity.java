@@ -1,9 +1,8 @@
 package com.example.daevin.gps_deneme;
 
 import android.content.Intent;
-import android.location.Location;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -71,7 +70,5 @@ public class MapsActivity extends FragmentActivity {
         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
         mMap.setMyLocationEnabled(true);
-
-
     }
 }

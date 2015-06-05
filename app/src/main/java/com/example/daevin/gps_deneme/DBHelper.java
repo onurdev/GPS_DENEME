@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String PARKS_COLUMN_ADDRESS = "address";
     public static final String PARKS_COLUMN_PHOTO = "photo";
     public static final String PARKS_COLUMN_THUMBNAIL = "thumbnail";
-
+    private static int count = 0;
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 2);
@@ -55,7 +54,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(PARKS_COLUMN_ADDRESS, park.getAddress());
         values.put(PARKS_COLUMN_PHOTO, park.getPhotoAsByteArray());
         values.put(PARKS_COLUMN_THUMBNAIL, park.getThumbNailAsByteArray());
-
+        count++;
 
         db.insert(PARKS_TABLE_NAME, null, values);
     }
@@ -74,7 +73,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 park.setLng(cursor.getDouble(2));
                 park.setAddress(cursor.getString(3));
                 byte[] blob = cursor.getBlob(4);
-               // park.setThumbNail(BitmapFactory.decodeByteArray(blob, 0, blob.length));
+                park.setThumbNail(BitmapFactory.decodeByteArray(blob, 0, blob.length));
 
                 parks.add(park);
             } while (cursor.moveToNext());
@@ -99,20 +98,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public int getLargestID() {
-        try {
-
-
-            SQLiteDatabase db = this.getReadableDatabase();
-            String[] colums = {PARKS_COLUMN_ID};
-            String orderBy = PARKS_COLUMN_ID + " DESC";
-            Cursor cursor = db.query(PARKS_TABLE_NAME, colums, null, null, null, null, orderBy);
-            cursor.moveToFirst();
-            int count = cursor.getInt(0);
-            cursor.close();
-            Log.e("DB count", "" + count);
-            return count;
-        }catch (Exception e){
-            return 0;
-        }
+        return count;
     }
 }

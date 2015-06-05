@@ -1,23 +1,20 @@
 package com.example.daevin.gps_deneme;
 
-import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 
 public class CameraActivity extends ActionBarActivity implements SurfaceHolder.Callback {
@@ -39,18 +36,11 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
         }
         else
         {
-
-
-
             sv = (SurfaceView) findViewById(R.id.surfaceView);
             sHolder = sv.getHolder();
             sHolder.addCallback(this);
             sHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
         }
-
-
-
     }
 
     @Override
@@ -65,12 +55,14 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
             @Override
             public void onPictureTaken(byte[] data, Camera camera)
             {
+                Intent intent = getIntent();
+                int parkID = intent.getIntExtra("photoID", -1);
 
                 Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                bmp=scaleDownBitmap(bmp,100,getApplicationContext());
+                String path = saveToInternalStorage(bmp, parkID);
 
                 Intent resultIntent=new Intent();
-                resultIntent.putExtra("image",bmp);
+                resultIntent.putExtra("imagePath", path);
 
                 setResult(RESULT_OK,resultIntent);
                 finish();///////////////////////////////
@@ -129,5 +121,29 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
         mCamera.stopPreview();
         mCamera.release();
         mCamera = null;
+    }
+
+    public String saveToInternalStorage(Bitmap bitmapImage, int parkID){
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        String filename = Integer.toString(parkID);
+        // Create filename
+        File mypath=new File(directory, filename);
+
+        FileOutputStream fos = null;
+        try {
+
+            fos = new FileOutputStream(mypath);
+
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Uri uri = Uri.parse(directory.getAbsolutePath());
+        return directory.getAbsolutePath();
     }
 }
