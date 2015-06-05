@@ -2,6 +2,7 @@ package com.example.daevin.gps_deneme;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 
@@ -73,6 +74,7 @@ public class Park {
         if (photo == null) { return null;}
         photo.compress(Bitmap.CompressFormat.PNG, 100, bos);
         byte[] bArray = bos.toByteArray();
+        Log.e("Park", "ByteArray: " + bArray.length);
         return bArray;
     }
 

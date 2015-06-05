@@ -1,6 +1,7 @@
 package com.example.daevin.gps_deneme;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -66,8 +67,12 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
             {
 
                 Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+                bmp=scaleDownBitmap(bmp,100,getApplicationContext());
+
                 Intent resultIntent=new Intent();
                 resultIntent.putExtra("image",bmp);
+
+                setResult(RESULT_OK,resultIntent);
                 finish();///////////////////////////////
             }
         };
@@ -75,7 +80,17 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
         mCamera.takePicture(null, null, mCall);
 
     }
+    public static Bitmap scaleDownBitmap(Bitmap photo, int newHeight, Context context) {
 
+        final float densityMultiplier = context.getResources().getDisplayMetrics().density;
+
+        int h= (int) (newHeight*densityMultiplier);
+        int w= (int) (h * photo.getWidth()/((double) photo.getHeight()));
+
+        photo=Bitmap.createScaledBitmap(photo, w, h, true);
+
+        return photo;
+    }
     int getBackCameraId() {
         Camera.CameraInfo ci = new Camera.CameraInfo();
         for (int i = 0 ; i < Camera.getNumberOfCameras(); i++) {

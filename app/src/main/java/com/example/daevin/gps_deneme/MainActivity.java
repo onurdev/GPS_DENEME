@@ -82,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
         DBHelper dbHelper=new DBHelper(this);
 
         parks = dbHelper.getParks();
-        adapter = new ArrayAdapter<Park>(this, android.R.layout.simple_list_item_1, parks);
+        adapter = new ParkAdapter(this,0, parks);
 
         listView = (ListView) findViewById(R.id.locationsListView);
         listView.setAdapter(adapter);
@@ -201,6 +201,8 @@ public class MainActivity extends ActionBarActivity {
         if(requestCode==IMAGE_REQUEST_CODE) {
             if(resultCode==RESULT_OK) {
                 Bitmap image = data.getExtras().getParcelable("image");
+                park.setPhoto(image);
+                Log.e("camera","image taken");
             }
 
         }
