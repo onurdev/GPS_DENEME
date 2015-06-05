@@ -343,5 +343,7 @@ public class MainActivity extends ActionBarActivity {
                     .create();
         }
     }
-
+    public void imageOnclick(View v){
+        Log.e("imageView","im clicked");
+    }
 }

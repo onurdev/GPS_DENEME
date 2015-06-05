@@ -86,7 +86,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public Bitmap getPhotoOf(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String [] columns = {PARKS_COLUMN_ID,PARKS_COLUMN_PHOTO};
-        Cursor cursor = db.query(PARKS_TABLE_NAME, columns, null, null, null, null, null);
+        String where=" id = "+id;
+
+        Cursor cursor = db.query(PARKS_TABLE_NAME, columns, where, null, null, null, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
