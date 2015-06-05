@@ -6,6 +6,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -23,13 +26,17 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends ActionBarActivity {
 
-    private ArrayList<Location> locations;
-    private ArrayAdapter<Location> adapter;
+    private static final int IMAGE_REQUEST_CODE = 1;
+    private ArrayList<Park> parks;
+    private ArrayAdapter<Park> adapter;
 
     private Location currLocation;
 
@@ -72,8 +79,10 @@ public class MainActivity extends ActionBarActivity {
 
         saveLocationButton = (Button) findViewById(R.id.saveLocationButton);
 
-        locations = new ArrayList<Location>();
-        adapter = new ArrayAdapter<Location>(this, android.R.layout.simple_list_item_1, locations);
+        DBHelper dbHelper=new DBHelper(this);
+
+        parks = dbHelper.getParks();
+        adapter = new ArrayAdapter<Park>(this, android.R.layout.simple_list_item_1, parks);
 
         listView = (ListView) findViewById(R.id.locationsListView);
         listView.setAdapter(adapter);
@@ -84,10 +93,11 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> adapt, View v, int position,long a) {
 
-                Location item =(Location) adapter.getItem(position);
+                Park item =(Park) adapter.getItem(position);
 
                 Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                intent.putExtra("location", item);
+                intent.putExtra("lat", item.getLat());  //TODO make Park parcelable and send that to maps activity
+                intent.putExtra("lng", item.getLng());
                 startActivity(intent);
 
             }
@@ -157,7 +167,55 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void saveLocation(View v) {
-        locations.add(currLocation);
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        startActivityForResult(intent, IMAGE_REQUEST_CODE);
+
+        //parks.add(currLocation);
+
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Park park= new Park();
+        DBHelper dbHelper=new DBHelper(this);
+        park.setId(dbHelper.getLargestID() + 1);
+        park.setLat(currLocation.getLatitude());
+        park.setLng(currLocation.getLongitude());
+        Geocoder geocoder=new Geocoder(this, Locale.getDefault());
+        List<Address> addresses=null;
+        try {
+             addresses =geocoder.getFromLocation(currLocation.getLatitude(),currLocation.getLongitude(),1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            Address address = addresses.get(0);
+            // Format the first line of address (if available), city, and country name.
+            String addressText = String.format("%s, %s, %s",
+                    address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
+                    address.getLocality(),
+                    address.getCountryName());
+
+            park.setAddress(addressText);
+        }
+
+        if(requestCode==IMAGE_REQUEST_CODE) {
+            if(resultCode==RESULT_OK) {
+                Bitmap image = data.getExtras().getParcelable("image");
+            }
+
+        }
+
+
+        dbHelper.addPark(park);
+        Toast.makeText(getApplicationContext(), "saved to database: "+park.getAddress(), Toast.LENGTH_LONG).show();
+
+        ArrayList<Park> tmpParks = dbHelper.getParks();
+        parks.clear();
+        for(Park p:tmpParks){
+            parks.add(p);
+            Log.e("save",p.toString());
+        }
+
         adapter.notifyDataSetChanged();
     }
 

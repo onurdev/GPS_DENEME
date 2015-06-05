@@ -84,5 +84,13 @@ public class Park {
         return bArray;
     }
 
-
+    @Override
+    public String toString() {
+        return "Park{" +
+                "id=" + id +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", address='" + address + '\'' +
+                '}';
+    }
 }

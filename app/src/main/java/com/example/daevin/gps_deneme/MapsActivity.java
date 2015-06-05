@@ -64,8 +64,9 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         Intent i = getIntent();
-        Location location = (Location) i.getParcelableExtra("location");
-        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+        double lat =  i.getDoubleExtra("lat",-1.0);
+        double lng =  i.getDoubleExtra("lng",-1.0);
+        LatLng latLng = new LatLng(lat,lng);
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
