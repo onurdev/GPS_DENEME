@@ -27,9 +27,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,12 +83,13 @@ public class MainActivity extends ActionBarActivity {
         DBHelper dbHelper=new DBHelper(this);
 
         parks = dbHelper.getParks();
-        adapter = new ParkAdapter(this, 0, parks);
+        adapter = new ParkAdapter(this,0, parks);
 
         listView = (ListView) findViewById(R.id.locationsListView);
         listView.setAdapter(adapter);
         listView.setClickable(true);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
 
             @Override
             public void onItemClick(AdapterView<?> adapt, View v, int position,long a) {
@@ -102,10 +100,14 @@ public class MainActivity extends ActionBarActivity {
                 intent.putExtra("lat", item.getLat());  //TODO make Park parcelable and send that to maps activity
                 intent.putExtra("lng", item.getLng());
                 startActivity(intent);
+
             }
+
+
         });
 
         adapter.notifyDataSetChanged();
+
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -166,9 +168,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void saveLocation(View v) {
-        DBHelper dbHelper = new DBHelper(this);
         Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-        intent.putExtra("photoID", dbHelper.getLargestID()+1);
         startActivityForResult(intent, IMAGE_REQUEST_CODE);
 
         //parks.add(currLocation);
@@ -201,12 +201,13 @@ public class MainActivity extends ActionBarActivity {
 
         if(requestCode==IMAGE_REQUEST_CODE) {
             if(resultCode==RESULT_OK) {
-                String imagePath = data.getStringExtra("imagePath");
-                Bitmap bmp = loadImageFromStorage(imagePath);
-                park.setPhoto(bmp);
+                Bitmap image = data.getExtras().getParcelable("image");
+                park.setPhoto(image);
                 Log.e("camera","image taken");
             }
+
         }
+
 
         dbHelper.addPark(park);
         Toast.makeText(getApplicationContext(), "saved to database: "+park.getAddress(), Toast.LENGTH_LONG).show();
@@ -219,20 +220,6 @@ public class MainActivity extends ActionBarActivity {
         }
 
         adapter.notifyDataSetChanged();
-    }
-
-    public Bitmap loadImageFromStorage(String path)
-    {
-        try {
-            File f=new File(path, "profile.jpg");
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            return b;
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     // Set up location providers

@@ -1,20 +1,29 @@
 package com.example.daevin.gps_deneme;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.support.v7.app.ActionBarActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 
 public class CameraActivity extends ActionBarActivity implements SurfaceHolder.Callback {
@@ -36,11 +45,18 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
         }
         else
         {
+
+
+
             sv = (SurfaceView) findViewById(R.id.surfaceView);
             sHolder = sv.getHolder();
             sHolder.addCallback(this);
             sHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
         }
+
+
+
     }
 
     @Override
@@ -55,14 +71,12 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
             @Override
             public void onPictureTaken(byte[] data, Camera camera)
             {
-                Intent intent = getIntent();
-                int parkID = intent.getIntExtra("photoID", -1);
 
                 Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                String path = saveToInternalStorage(bmp, parkID);
+                bmp=scaleDownBitmap(bmp,100,getApplicationContext());
 
                 Intent resultIntent=new Intent();
-                resultIntent.putExtra("imagePath", path);
+                resultIntent.putExtra("image",bmp);
 
                 setResult(RESULT_OK,resultIntent);
                 finish();///////////////////////////////
