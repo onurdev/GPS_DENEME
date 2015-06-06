@@ -8,6 +8,7 @@
 
     <string name="address">Address:</string>
     <string name="enable_gps">Enable GPS</string>
+    <string name="skip_enable_gps">Skip it</string>
     <string name="enable_gps_dialog">GPS provider not enabled. Would you like to enable it?</string>
     <string name="latlng">Lat/Long:</string>
     <string name="unknown">--Unknown--</string>

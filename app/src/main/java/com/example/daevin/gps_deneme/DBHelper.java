@@ -102,8 +102,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public int getLargestID() {
         try {
-
-
             SQLiteDatabase db = this.getReadableDatabase();
             String[] colums = {PARKS_COLUMN_ID};
             String orderBy = PARKS_COLUMN_ID + " DESC";

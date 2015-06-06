@@ -1,29 +1,20 @@
 package com.example.daevin.gps_deneme;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.support.v7.app.ActionBarActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 
 public class CameraActivity extends ActionBarActivity implements SurfaceHolder.Callback {
@@ -38,25 +29,17 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
         super.onCreate(icicle);
         setContentView(R.layout.activity_camera);
 
-
         int index = getBackCameraId();
         if (index == -1){
             Toast.makeText(getApplicationContext(), "No back camera", Toast.LENGTH_LONG).show();
         }
         else
         {
-
-
-
             sv = (SurfaceView) findViewById(R.id.surfaceView);
             sHolder = sv.getHolder();
             sHolder.addCallback(this);
             sHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
         }
-
-
-
     }
 
     @Override
@@ -74,7 +57,7 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
 
                 Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
                 bmp=scaleDownBitmap(bmp,100,getApplicationContext());
-
+                
                 Intent resultIntent=new Intent();
                 resultIntent.putExtra("image",bmp);
 

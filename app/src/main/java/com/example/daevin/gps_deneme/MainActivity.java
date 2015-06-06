@@ -1,15 +1,13 @@
 package com.example.daevin.gps_deneme;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,11 +24,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -83,13 +79,12 @@ public class MainActivity extends ActionBarActivity {
         DBHelper dbHelper=new DBHelper(this);
 
         parks = dbHelper.getParks();
-        adapter = new ParkAdapter(this,0, parks);
+        adapter = new ParkAdapter(this, 0, parks);
 
         listView = (ListView) findViewById(R.id.locationsListView);
         listView.setAdapter(adapter);
         listView.setClickable(true);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
 
             @Override
             public void onItemClick(AdapterView<?> adapt, View v, int position,long a) {
@@ -100,17 +95,13 @@ public class MainActivity extends ActionBarActivity {
                 intent.putExtra("lat", item.getLat());  //TODO make Park parcelable and send that to maps activity
                 intent.putExtra("lng", item.getLng());
                 startActivity(intent);
-
             }
-
-
         });
 
         adapter.notifyDataSetChanged();
 
-
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
+        setup();
     }
 
     @Override
@@ -129,6 +120,7 @@ public class MainActivity extends ActionBarActivity {
             // the location services, then when the user clicks the "OK" button,
             // call enableLocationSettings()
             new EnableGpsDialogFragment().show(getSupportFragmentManager(), "enableGpsDialog");
+            new EnableGpsDialogFragment().show(getSupportFragmentManager(), "disableGpsDialog");
         }
 
     }
@@ -136,7 +128,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setup();
 
     }
 
@@ -181,23 +172,11 @@ public class MainActivity extends ActionBarActivity {
         park.setId(dbHelper.getLargestID() + 1);
         park.setLat(currLocation.getLatitude());
         park.setLng(currLocation.getLongitude());
-        Geocoder geocoder=new Geocoder(this, Locale.getDefault());
-        List<Address> addresses=null;
-        try {
-             addresses =geocoder.getFromLocation(currLocation.getLatitude(),currLocation.getLongitude(),1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses != null && addresses.size() > 0) {
-            Address address = addresses.get(0);
-            // Format the first line of address (if available), city, and country name.
-            String addressText = String.format("%s, %s, %s",
-                    address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
-                    address.getLocality(),
-                    address.getCountryName());
 
-            park.setAddress(addressText);
-        }
+        GeocoderHelper geocoderHelper = new GeocoderHelper();
+        String addressText = geocoderHelper.getAddress(this, currLocation);
+        park.setAddress(addressText);
+
 
         if(requestCode==IMAGE_REQUEST_CODE) {
             if(resultCode==RESULT_OK) {
@@ -207,7 +186,6 @@ public class MainActivity extends ActionBarActivity {
             }
 
         }
-
 
         dbHelper.addPark(park);
         Toast.makeText(getApplicationContext(), "saved to database: "+park.getAddress(), Toast.LENGTH_LONG).show();
@@ -331,19 +309,46 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new AlertDialog.Builder(getActivity())
+            AlertDialog alert = new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.enable_gps)
                     .setMessage(R.string.enable_gps_dialog)
                     .setPositiveButton(R.string.enable_gps, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             enableLocationSettings();
+
                         }
                     })
                     .create();
+            //Button button = new Button(getApplicationContext());
+            return alert;
         }
+
     }
     public void imageOnclick(View v){
         Log.e("imageView","im clicked");
+    }
+
+    public void toggleButtonOnClick(View v) {
+        ToggleButton toggleButton = (ToggleButton) v;
+        if (toggleButton.isChecked()) {
+            Log.d("toggle","button is checked");
+            Intent intent = new Intent(this, PhotoTakingService.class);
+            startService(intent);
+        }
+        else {
+            Log.d("toggle","button is not checked");
+            Intent intent = new Intent(this, PhotoTakingService.class);
+            stopService(intent);
+        }
+    }
+    private boolean isServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (PhotoTakingService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
