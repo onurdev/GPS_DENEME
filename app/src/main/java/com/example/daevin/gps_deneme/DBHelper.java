@@ -58,6 +58,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
         db.insert(PARKS_TABLE_NAME, null, values);
+        db.close();
     }
 
     public ArrayList<Park> getParks() {
@@ -79,11 +80,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 parks.add(park);
             } while (cursor.moveToNext());
         }
-
+        db.close();
         return parks;
     }
 
     public Bitmap getPhotoOf(int id) {
+        try {
         SQLiteDatabase db = this.getReadableDatabase();
         String [] columns = {PARKS_COLUMN_ID,PARKS_COLUMN_PHOTO};
         String where=" id = "+id;
@@ -92,12 +94,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor != null) {
             cursor.moveToFirst();
+        }else{
+            return null;
         }
-
+        if(cursor.getCount()<1)return null;
         byte[] blob = cursor.getBlob(1);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+        if(blob==null){
+            Log.e("DB","photo is null");
+            return null;
+        }
+        Bitmap bitmap;
 
+            bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+
+        db.close();
         return bitmap;
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public int getLargestID() {
@@ -110,8 +124,10 @@ public class DBHelper extends SQLiteOpenHelper {
             int count = cursor.getInt(0);
             cursor.close();
             Log.e("DB count", "" + count);
+            db.close();
             return count;
         }catch (Exception e){
+
             return 0;
         }
     }

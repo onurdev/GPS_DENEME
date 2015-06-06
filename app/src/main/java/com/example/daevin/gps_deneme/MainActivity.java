@@ -32,8 +32,8 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity {
 
     private static final int IMAGE_REQUEST_CODE = 1;
-    private ArrayList<Park> parks;
-    private ArrayAdapter<Park> adapter;
+    public static ArrayList<Park> parks;
+    public static ArrayAdapter<Park> adapter;
 
     private Location currLocation;
 
@@ -107,7 +107,8 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
+        ToggleButton tgb=(ToggleButton)(findViewById(R.id.toggleButton));
+        tgb.setChecked(isServiceRunning());
         // Check if the GPS setting is currently enabled on the device.
         // This verification should be done during onStart() because the system calls this method
         // when the user returns to the activity, which ensures the desired location provider is
@@ -351,4 +352,5 @@ public class MainActivity extends ActionBarActivity {
         }
         return false;
     }
+
 }

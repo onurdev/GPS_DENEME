@@ -86,7 +86,7 @@ public class CameraActivity extends ActionBarActivity implements SurfaceHolder.C
             Camera.getCameraInfo(i, ci);
             if (ci.facing == Camera.CameraInfo.CAMERA_FACING_BACK) return i;
         }
-        return -1; // No back-facing camera found
+        return -1; // No back-facing mCamera found
     }
 
     @Override

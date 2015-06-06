@@ -33,4 +33,8 @@ public class ParkAdapter extends ArrayAdapter<Park> {
         return item;
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+    }
 }
