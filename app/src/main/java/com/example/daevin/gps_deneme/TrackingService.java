@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * Takes a single photo on service start.
  */
-public class PhotoTakingService extends Service implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class TrackingService extends Service implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     ActionUserPresentReceiver mActionUserPresentReceiver;
 
     LocationRequest mLocationRequest;
@@ -50,18 +50,16 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.e("location", "received: " + location);
+        Log.e("location", "received: " + location+","+location.getSpeed()*3.6);
         currLocation = location;
 
         if (gotFastFlag) {
-            currPark=null;
+            gotSlowFlag = checkGotSlow(location);
             if (gotSlowFlag) {
                 gotFastFlag = false;
                 gotSlowFlag = false;
                 takePhoto(getApplicationContext());
 
-            } else {
-                gotSlowFlag = checkGotSlow(location);
             }
 
         } else {
@@ -72,14 +70,14 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
 
     private boolean checkGotSlow(Location location) {
         if (location.hasSpeed()) {
-            return location.getSpeed() < (5 / 3.6);
+            return location.getSpeed() < (5.0 / 3.6);
         }
-        return false;
+        return true;
     }
 
     public boolean checkGotFast(Location location) {
         if (location.hasSpeed()) {
-            return location.getSpeed() > (50.0 / 3.6);
+            return location.getSpeed() > (10.0 / 3.6);
         }
         return false;
     }
@@ -91,6 +89,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
         IntentFilter intentFilter= new IntentFilter();
         intentFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(mActionUserPresentReceiver,intentFilter);
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -227,7 +226,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
         park.setPhoto(currPhoto);
         currPark = park;
        // dbHelper.addPark(currPark);
-        Toast.makeText(getApplicationContext(), "saved to database: " + park.getAddress(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "current updayed: " + park.getAddress(), Toast.LENGTH_LONG).show();
 
 
     }
@@ -245,8 +244,8 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override

@@ -58,27 +58,29 @@
         </activity>
 
         <service
-            android:name=".PhotoTakingService"
+            android:name=".TrackingService"
             android:enabled="true"
             android:exported="true" >
-            <intent-filter android:enabled="true" android:exported="false">
+            <intent-filter
+                android:enabled="true"
+                android:exported="false" >
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </service>
+
         <activity
             android:name=".ServiceStarterActivity"
             android:label="@string/title_activity_service_starter" >
-
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -87,11 +89,13 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
 
-
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
-
+        </activity>
+        <activity
+            android:name=".ImageActivity"
+            android:label="@string/title_activity_image" >
         </activity>
     </application>
 

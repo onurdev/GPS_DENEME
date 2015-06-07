@@ -18,6 +18,7 @@
     <string name="use_both_providers">Both providers</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_service_starter">ServiceStarterActivity</string>
+    <string name="title_activity_image">ImageActivity</string>
 
 
 </resources>

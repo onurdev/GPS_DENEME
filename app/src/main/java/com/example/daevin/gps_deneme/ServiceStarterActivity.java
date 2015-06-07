@@ -3,17 +3,12 @@ package com.example.daevin.gps_deneme;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.io.IOException;
 
 
 public class ServiceStarterActivity extends ActionBarActivity {
@@ -28,7 +23,7 @@ public class ServiceStarterActivity extends ActionBarActivity {
 
         if (!isServiceRunning()) {
             Context con = getApplicationContext();
-            Intent srv = new Intent(con, PhotoTakingService.class);
+            Intent srv = new Intent(con, TrackingService.class);
             srv.putExtras(getIntent().getExtras());
             con.startService(srv);
             Log.d("servicestarter", "im done");
@@ -63,7 +58,7 @@ public class ServiceStarterActivity extends ActionBarActivity {
     private boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (PhotoTakingService.class.getName().equals(service.service.getClassName())) {
+            if (TrackingService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }

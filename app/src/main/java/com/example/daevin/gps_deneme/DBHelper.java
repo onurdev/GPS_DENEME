@@ -65,7 +65,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String [] columns = {PARKS_COLUMN_ID, PARKS_COLUMN_LATITUDE, PARKS_COLUMN_LONGITUDE, PARKS_COLUMN_ADDRESS, PARKS_COLUMN_THUMBNAIL};
         Cursor cursor = db.query(PARKS_TABLE_NAME, columns, null, null, null, null, null);
-
         ArrayList<Park> parks = new ArrayList<Park>();
         if(cursor.moveToFirst()) {
             do {

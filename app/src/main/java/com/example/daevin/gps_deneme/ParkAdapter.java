@@ -27,7 +27,7 @@ public class ParkAdapter extends ArrayAdapter<Park> {
         View item = inflater.inflate(R.layout.park_layout, parent, false);
         ImageView iv=(ImageView)item.findViewWithTag("imageView");
         iv.setImageBitmap(getItem(position).getPhoto(getContext()));
-
+        iv.setTag(getItem(position).getId());
         TextView tv=(TextView)item.findViewWithTag("textView");
         tv.setText(getItem(position).getAddress());
 

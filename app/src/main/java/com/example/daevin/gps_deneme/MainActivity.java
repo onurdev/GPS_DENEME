@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -159,10 +160,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void saveLocation(View v) {
-        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-        startActivityForResult(intent, IMAGE_REQUEST_CODE);
+        final boolean gpsEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(gpsEnabled) {
+            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+            startActivityForResult(intent, IMAGE_REQUEST_CODE);
+        }else{
+            new EnableGpsDialogFragment().show(getSupportFragmentManager(), "enableGpsDialog");
+        }
 
-        //parks.add(currLocation);
 
     }
 
@@ -330,7 +335,19 @@ public class MainActivity extends ActionBarActivity {
 
     }
     public void imageOnclick(View v){
-        Log.e("imageView","im clicked");
+
+        ImageView iv =(ImageView)v;
+
+
+        int id = (int) v.getTag();
+        Log.e("imageView","im clicked: "+id);
+        Bitmap bmp= new DBHelper(this).getPhotoOf(id);
+
+        Intent intent = new Intent(this, ImageActivity.class);
+        intent.putExtra("image",bmp);
+        startActivity(intent);
+
+
     }
 
     public void deleteOnClick(View v) {
@@ -347,19 +364,19 @@ public class MainActivity extends ActionBarActivity {
         ToggleButton toggleButton = (ToggleButton) v;
         if (toggleButton.isChecked()) {
             Log.d("toggle","button is checked");
-            Intent intent = new Intent(this, PhotoTakingService.class);
+            Intent intent = new Intent(this, TrackingService.class);
             startService(intent);
         }
         else {
             Log.d("toggle","button is not checked");
-            Intent intent = new Intent(this, PhotoTakingService.class);
+            Intent intent = new Intent(this, TrackingService.class);
             stopService(intent);
         }
     }
     private boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (PhotoTakingService.class.getName().equals(service.service.getClassName())) {
+            if (TrackingService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
