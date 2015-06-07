@@ -91,7 +91,6 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
         IntentFilter intentFilter= new IntentFilter();
         intentFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(mActionUserPresentReceiver,intentFilter);
-
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -285,10 +284,16 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
        @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
-            Log.e("broadcast receiver","broadcast received");
+                Log.e("broadcast receiver","broadcast received");
+
+                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
                 if(currPark!=null){
                     new DBHelper(context).addPark(currPark);
                     currPark=null;
+                    intent1.putExtra("isServiceRunning", false);
+                    startActivity(intent1);
                     stopSelf();
                 }
 

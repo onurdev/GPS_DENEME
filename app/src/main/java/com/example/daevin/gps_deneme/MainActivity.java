@@ -107,8 +107,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        ToggleButton tgb=(ToggleButton)(findViewById(R.id.toggleButton));
-        tgb.setChecked(isServiceRunning());
         // Check if the GPS setting is currently enabled on the device.
         // This verification should be done during onStart() because the system calls this method
         // when the user returns to the activity, which ensures the desired location provider is
@@ -121,7 +119,6 @@ public class MainActivity extends ActionBarActivity {
             // the location services, then when the user clicks the "OK" button,
             // call enableLocationSettings()
             new EnableGpsDialogFragment().show(getSupportFragmentManager(), "enableGpsDialog");
-            new EnableGpsDialogFragment().show(getSupportFragmentManager(), "disableGpsDialog");
         }
 
     }
@@ -130,6 +127,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
+        ToggleButton tgb=(ToggleButton)(findViewById(R.id.toggleButton));
+        tgb.setChecked(isServiceRunning());
     }
 
     @Override
@@ -188,7 +187,6 @@ public class MainActivity extends ActionBarActivity {
             }
 
         }
-
         dbHelper.addPark(park);
         Toast.makeText(getApplicationContext(), "saved to database: "+park.getAddress(), Toast.LENGTH_LONG).show();
 
@@ -368,4 +366,15 @@ public class MainActivity extends ActionBarActivity {
         return false;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        boolean serviceRunning = intent.getBooleanExtra("isServiceRunning", true);
+
+        if (serviceRunning) {
+            ToggleButton tgb = (ToggleButton) (findViewById(R.id.toggleButton));
+            tgb.setChecked(false);
+        }
+        //onStart();
+    }
 }
