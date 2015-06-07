@@ -166,6 +166,7 @@ public class MainActivity extends ActionBarActivity {
         //parks.add(currLocation);
 
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         Park park= new Park();
@@ -191,7 +192,11 @@ public class MainActivity extends ActionBarActivity {
         dbHelper.addPark(park);
         Toast.makeText(getApplicationContext(), "saved to database: "+park.getAddress(), Toast.LENGTH_LONG).show();
 
-        ArrayList<Park> tmpParks = dbHelper.getParks();
+        notifyAdapter();
+    }
+
+    private void notifyAdapter() {
+        ArrayList<Park> tmpParks = new DBHelper(this).getParks();
         parks.clear();
         for(Park p:tmpParks){
             parks.add(p);
@@ -328,6 +333,16 @@ public class MainActivity extends ActionBarActivity {
     }
     public void imageOnclick(View v){
         Log.e("imageView","im clicked");
+    }
+
+    public void deleteOnClick(View v) {
+        Log.e("deleteonclick","delete is clicked");
+        int id = (int)v.getTag();
+
+        DBHelper dbHelper = new DBHelper(this);
+        dbHelper.deleteRowByID(id);
+        Log.e("rowId", "" + id);
+        notifyAdapter();
     }
 
     public void toggleButtonOnClick(View v) {

@@ -19,6 +19,16 @@
         android:text="New Text"
         android:id="@+id/textView"
         android:tag="textView"
-        android:layout_weight="2" />
+        android:layout_weight="1.67" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/deleteView"
+        android:layout_weight="0.41"
+        android:layout_gravity="center_vertical"
+        android:clickable="true"
+        android:onClick="deleteOnClick"
+        android:background="@android:drawable/ic_delete" />
 
 </LinearLayout>

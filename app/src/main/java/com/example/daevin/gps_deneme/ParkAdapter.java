@@ -30,6 +30,9 @@ public class ParkAdapter extends ArrayAdapter<Park> {
 
         TextView tv=(TextView)item.findViewWithTag("textView");
         tv.setText(getItem(position).getAddress());
+
+        ImageView deleteView=(ImageView)item.findViewById(R.id.deleteView);
+        deleteView.setTag(getItem(position).getId());
         return item;
     }
 

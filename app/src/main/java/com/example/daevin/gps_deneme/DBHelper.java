@@ -117,19 +117,23 @@ public class DBHelper extends SQLiteOpenHelper {
     public int getLargestID() {
         try {
             SQLiteDatabase db = this.getReadableDatabase();
-            String[] colums = {PARKS_COLUMN_ID};
+            String[] columns = {PARKS_COLUMN_ID};
             String orderBy = PARKS_COLUMN_ID + " DESC";
-            Cursor cursor = db.query(PARKS_TABLE_NAME, colums, null, null, null, null, orderBy);
+            Cursor cursor = db.query(PARKS_TABLE_NAME, columns, null, null, null, null, orderBy);
             cursor.moveToFirst();
-            int count = cursor.getInt(0);
+            int largestID = cursor.getInt(0);
             cursor.close();
-            Log.e("DB count", "" + count);
+            Log.e("DB count", "" + largestID);
             db.close();
-            return count;
+            return largestID;
         }catch (Exception e){
 
             return 0;
         }
     }
 
+    public void deleteRowByID (int rowID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(DBHelper.PARKS_TABLE_NAME, DBHelper.PARKS_COLUMN_ID + "=" + rowID, null);
+    }
 }
