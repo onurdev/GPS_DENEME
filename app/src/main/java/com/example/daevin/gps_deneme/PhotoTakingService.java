@@ -1,8 +1,10 @@
 package com.example.daevin.gps_deneme;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
@@ -19,7 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -30,39 +31,67 @@ import java.io.IOException;
  * Takes a single photo on service start.
  */
 public class PhotoTakingService extends Service implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
+    ActionUserPresentReceiver mActionUserPresentReceiver;
 
     LocationRequest mLocationRequest;
-    protected FusedLocationProviderApi mFusedLocationProviderApi;
+
     protected GoogleApiClient mGoogleApiClient;
     Camera mCamera = null;
 
     protected Location currLocation;
     private Bitmap currPhoto = null;
-    private Park currPark = null;
+    private static Park currPark = null;
     public long time = 0;
+
+
+    boolean gotFastFlag = false;
+    boolean gotSlowFlag = false;
+
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("location", "received: " + location);
+        Log.e("location", "received: " + location);
         currLocation = location;
 
+        if (gotFastFlag) {
+            currPark=null;
+            if (gotSlowFlag) {
+                gotFastFlag = false;
+                gotSlowFlag = false;
+                takePhoto(getApplicationContext());
 
-        takePhoto(getApplicationContext());
-        Log.d("cameraservice", "photo is being taken");
-        //while (currPhoto == null) ; // wait photo to be taken
-        if (currPhoto == null)
-            Log.d("cameraservice", "photo is not taken");
+            } else {
+                gotSlowFlag = checkGotSlow(location);
+            }
 
+        } else {
+            gotFastFlag = checkGotFast(location);
 
-        Log.d("cameraservice", "continue");
+        }
+    }
 
+    private boolean checkGotSlow(Location location) {
+        if (location.hasSpeed()) {
+            return location.getSpeed() < (5 / 3.6);
+        }
+        return false;
+    }
 
+    public boolean checkGotFast(Location location) {
+        if (location.hasSpeed()) {
+            return location.getSpeed() > (50.0 / 3.6);
+        }
+        return false;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        mActionUserPresentReceiver = new ActionUserPresentReceiver();
+        IntentFilter intentFilter= new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(mActionUserPresentReceiver,intentFilter);
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -79,7 +108,6 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("servicee", "on start");
 
-
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -89,23 +117,8 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
                 buildGoogleApiClient();
                 mGoogleApiClient.connect();
                 Log.d("googleapi", "GoogleApiClient is connected");
-/*
-                while (true) {
-                    // Check if the GPS setting is currently enabled on the device.
-                    // This verification should be done during onStart() because the system calls this method
-                    // when the user returns to the activity, which ensures the desired location provider is
-                    // enabled each time the activity resumes from the stopped state.
 
-                    final boolean gpsEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-                    if (!gpsEnabled) {
-                        // Service stops itself.
-                        stopSelf();
-                        // TODO create dialog
-                    }
-
-                }
-                */
             }
         };
         new Thread(r).start();
@@ -116,6 +129,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
     public void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.disconnect();
+        unregisterReceiver(mActionUserPresentReceiver);
     }
 
     @SuppressWarnings("deprecation")
@@ -155,7 +169,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
                         public void onPictureTaken(byte[] data, Camera camera) {
                             showMessage("Took picture");
                             Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            currPhoto= scaleDownBitmap(bmp,100,getApplicationContext());
+                            currPhoto = scaleDownBitmap(bmp, 100, getApplicationContext());
                             savePark();
 
                             wm.removeViewImmediate(preview);
@@ -175,7 +189,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                Log.d("surfaceDestroyed","surfaceDestroyed");
+                Log.d("surfaceDestroyed", "surfaceDestroyed");
                 mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
@@ -213,7 +227,7 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
         park.setAddress(addressText);
         park.setPhoto(currPhoto);
         currPark = park;
-        dbHelper.addPark(currPark);
+       // dbHelper.addPark(currPark);
         Toast.makeText(getApplicationContext(), "saved to database: " + park.getAddress(), Toast.LENGTH_LONG).show();
 
 
@@ -222,7 +236,6 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
     private static void showMessage(String message) {
         Log.d("Camera", message);
     }
-
 
 
     @Override
@@ -251,15 +264,35 @@ public class PhotoTakingService extends Service implements LocationListener, Goo
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
     public static Bitmap scaleDownBitmap(Bitmap photo, int newHeight, Context context) {
 
         final float densityMultiplier = context.getResources().getDisplayMetrics().density;
 
-        int h= (int) (newHeight*densityMultiplier);
-        int w= (int) (h * photo.getWidth()/((double) photo.getHeight()));
+        int h = (int) (newHeight * densityMultiplier);
+        int w = (int) (h * photo.getWidth() / ((double) photo.getHeight()));
 
-        photo=Bitmap.createScaledBitmap(photo, w, h, true);
+        photo = Bitmap.createScaledBitmap(photo, w, h, true);
 
         return photo;
+    }
+
+   public class ActionUserPresentReceiver extends BroadcastReceiver {
+       public ActionUserPresentReceiver() {
+           super();
+       }
+
+       @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+            Log.e("broadcast receiver","broadcast received");
+                if(currPark!=null){
+                    new DBHelper(context).addPark(currPark);
+                    currPark=null;
+                    stopSelf();
+                }
+
+            }
+        }
     }
 }

@@ -195,7 +195,7 @@ public class MainActivity extends ActionBarActivity {
         parks.clear();
         for(Park p:tmpParks){
             parks.add(p);
-            Log.e("save",p.toString());
+           // Log.e("save",p.toString());
         }
 
         adapter.notifyDataSetChanged();

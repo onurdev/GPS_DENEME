@@ -17,6 +17,7 @@
     <string name="use_fine_provider">Fine-grain provider</string>
     <string name="use_both_providers">Both providers</string>
     <string name="title_activity_camera">CameraActivity</string>
+    <string name="title_activity_service_starter">ServiceStarterActivity</string>
 
 
 </resources>

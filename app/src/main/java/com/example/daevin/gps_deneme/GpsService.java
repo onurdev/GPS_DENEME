@@ -47,7 +47,7 @@ public abstract class GpsService extends Service {
             // the location update.
 
            updateLocation(location); //TODO
-            Log.d("Location", location.toString());
+            Log.e("Location", location.toString());
         }
 
         @Override
